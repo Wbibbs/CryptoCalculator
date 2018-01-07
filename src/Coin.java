@@ -1,8 +1,6 @@
 
 public class Coin {
 
-	//Make a coin object with all of these properties to clean up main
-
 	private String nameCoin;
 	private String rank;
 	private String symbolCoin;
@@ -13,8 +11,11 @@ public class Coin {
 	private String availableSupply;
 	private String totalSupply;
 	private String maxSupply;
+	private String percentHour;
+	private String percentDay;
+	private String percentWeek;
 	
-	Coin(String nameCoin, String rank, String symbolCoin, String priceCoin, String priceBtc, String dayVol, String marketCap, String availableSupply, String totalSupply, String maxSupply){
+	Coin(String nameCoin, String rank, String symbolCoin, String priceCoin, String priceBtc, String dayVol, String marketCap, String availableSupply, String totalSupply, String maxSupply, String percentHour, String percentDay, String percentWeek){
 		this.nameCoin = nameCoin;
 		this.rank = rank;
 		this.symbolCoin = symbolCoin;
@@ -25,6 +26,9 @@ public class Coin {
 		this.availableSupply = availableSupply;
 		this.totalSupply = totalSupply;
 		this.maxSupply = maxSupply;
+		this.percentHour = percentHour;
+		this.percentDay = percentDay;
+		this.percentWeek = percentWeek;
 	}
 	
 	String getName() {
@@ -65,6 +69,18 @@ public class Coin {
 	
 	String getMaxSupply() {
 		return maxSupply;
+	}
+	
+	String getPercentDay() {
+		return percentDay;
+	}
+	
+	String getPercentHour() {
+		return percentHour;
+	}
+	
+	String getPercentWeek() {
+		return percentWeek;
 	}
 
 }
