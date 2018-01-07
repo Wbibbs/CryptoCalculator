@@ -81,6 +81,7 @@ public class main {
 			System.out.println("USD Value per coin: " + moneyFormat.format(priceCoin));
 
 		System.out.println("Approximate value of your held coins: " + moneyFormat.format(currentValue));
+		
 		//System.out.println(newString);
 	}
 }
