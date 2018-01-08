@@ -1,22 +1,28 @@
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import org.json.*;
 
+//@author William Bibbs
 //Utilizes Org Json parsing, found at http://mvnrepository.com/artifact/org.json/json
 //Licensed using the JSON license provided in the project
 
 public class main {
 
-	static HashMap<String, Coin> hm = new HashMap<String, Coin>();
 	static DecimalFormat moneyFormat = new DecimalFormat("$#,##0.00");
 	static DecimalFormat standardFormat = new DecimalFormat("#,###.########");
 	public static void main(String[] args) throws Exception {
 
+		HashMap<String, Coin> hm = new HashMap<String, Coin>();
 		String baseURL = "https://api.coinmarketcap.com/v1/ticker/";
 		Scanner sc = new Scanner(System.in);
 		String coin = "", amount = "", another = "";
@@ -25,15 +31,15 @@ public class main {
 		String[][] list = new String[10][2];
 		while (run) {
 			System.out.println("Enter a currency you want to check (Full coin name, such as Bitcoin, Reddcoin, etc.)"); //Full coin name, ex. bitcoin, reddcoin
-			coin = sc.nextLine();
+			coin = sc.nextLine().toLowerCase();
 			System.out.println("How many do you have? n for none");
 			amount = sc.nextLine();
 			list[pos][0] = coin;
 			list[pos][1] = amount;
 			System.out.println("Do you have another coin to check? n for no");
-			if (sc.nextLine().equals("n") || pos >= 10) {
-				if (pos >= 10)
-					System.out.println("Max of 10 coins only");
+			if (sc.nextLine().toLowerCase().equals("n") || pos >= 5) {
+				if (pos >= 5)
+					System.out.println("Max of 5 coins only");
 				run = false;
 				break;
 			} 
@@ -42,12 +48,14 @@ public class main {
 
 		}
 
-		getInfo(coin, baseURL, amount, pos, list);//Receives information from CoinMarketCap and puts it into a coin object and then into a hashmap for organization
-		printInfo(coin, amount, pos, list);//Prints coin information
-
+		hm = getInfo(coin, baseURL, amount, pos, list, hm);//Receives information from CoinMarketCap and puts it into a coin object and then into a hashmap for organization
+		printInfo(coin, amount, pos, list, hm);//Prints coin information
+		serializeHashMap(hm);
+		hm = readHashMap();
+		printInfo(coin, amount, pos, list, hm);
 	}
 
-	public static void printInfo(String coin, String amount, int num, String[][] list) {
+	public static void printInfo(String coin, String amount, int num, String[][] list, HashMap<String, Coin> hm) {
 		for (int i = 0; i <= num; i++) {
 			try {
 				System.out.println("\nRank #" + hm.get(list[i][0]).getRank() + ": " + hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol());
@@ -82,7 +90,7 @@ public class main {
 		}
 	}
 
-	public static void getInfo(String coin, String baseURL, String amount, int num, String[][] list) throws Exception {
+	public static HashMap<String, Coin> getInfo(String coin, String baseURL, String amount, int num, String[][] list, HashMap<String, Coin> hm) throws Exception {
 		for (int i = 0; i <= num; i++) {
 			Thread.sleep(5);//To prevent websites from getting angry
 			String base = baseURL  + list[i][0];
@@ -91,14 +99,13 @@ public class main {
 
 			//Reads in entire json from web
 			String inputLine, tempLine = "";
-			while ((inputLine = br.readLine()) != null) {
+			while ((inputLine = br.readLine()) != null)
 				tempLine += inputLine;
-			}
 			br.close();
 
 			//Parses json information
 			StringBuilder sb = new StringBuilder(tempLine);
-			sb.deleteCharAt(0);
+			sb.deleteCharAt(0);//Deletes leading [ to properly format json
 			String newString = sb.toString();
 			JSONObject results = new JSONObject(newString);
 			String nameCoin = results.getString("name");
@@ -157,13 +164,34 @@ public class main {
 			if (!amount.equals("n")) //Throws an ex ception, seems to still pass in n as object
 				//currentValue = Double.parseDouble(list[i][1]) * Double.parseDouble(priceCoin);
 
-<<<<<<< HEAD
-		System.out.println("Approximate value of your held coins: " + moneyFormat.format(currentValue));
+		//System.out.println("Approximate value of your held coins: " + moneyFormat.format(currentValue));
 		
 		//System.out.println(newString);
-=======
+
 			hm.put(nameCoin.toLowerCase(), new Coin(nameCoin, rank, symbolCoin, priceCoin, priceBtc, dayVol, marketCap, availableSupply, totalSupply, maxSupply, percentHour, percentDay, percentWeek));
 		}
->>>>>>> Hashmap
+		return hm;
+
+	}
+	
+	public static void serializeHashMap(HashMap<String, Coin> hm) {//Serializes HashMap to coins.coin
+
+		System.out.println("Serializing HashMap...\n");
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("coins.coin"))) {
+			oos.writeObject(hm);
+			System.out.println("Serialization succesful!");
+		} catch (Exception e) {
+			System.out.println("Serializing failed!");
+			e.printStackTrace();
+		}
+	}
+	
+	public static HashMap<String, Coin> readHashMap() throws Exception {//Reads in HashMap from file coins.coin
+		System.out.println("Reading HashMap...\n");
+	    FileInputStream fileIn = new FileInputStream("coins.coin");
+	    ObjectInputStream in = new ObjectInputStream(fileIn);
+	    HashMap<String, Coin> hm = (HashMap<String, Coin>)in.readObject();
+	    System.out.println("HashMap read successfully!");
+	    return hm;
 	}
 }

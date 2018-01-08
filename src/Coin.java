@@ -1,6 +1,8 @@
+import java.io.Serializable;
 
-public class Coin {
+public class Coin implements Serializable{
 
+	private static final long serialVersionUID = 1L;
 	private String nameCoin;
 	private String rank;
 	private String symbolCoin;
