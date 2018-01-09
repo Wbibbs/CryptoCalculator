@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,7 +23,7 @@ public class main {
 		HashMap<String, Coin> hm = new HashMap<String, Coin>();
 		String baseURL = "https://api.coinmarketcap.com/v1/ticker/";
 		Scanner sc = new Scanner(System.in);
-		String coin = "", amount = "", another = "";
+		String coin = "", amount = "";
 		int pos = 0;
 		boolean run = true;
 		String[][] list = new String[10][2];
@@ -44,15 +42,16 @@ public class main {
 				break;
 			} 
 			pos++;
-
-
+			
 		}
 
 		hm = getInfo(coin, baseURL, amount, pos, list, hm);//Receives information from CoinMarketCap and puts it into a coin object and then into a hashmap for organization
 		printInfo(coin, amount, pos, list, hm);//Prints coin information
+		//Reading and writing the HashMap to a file works correctly, leaving for reference until later
 		serializeHashMap(hm);
 		hm = readHashMap();
 		printInfo(coin, amount, pos, list, hm);
+		sc.close();
 	}
 
 	public static void printInfo(String coin, String amount, int num, String[][] list, HashMap<String, Coin> hm) {
@@ -61,7 +60,7 @@ public class main {
 				System.out.println("\nRank #" + hm.get(list[i][0]).getRank() + ": " + hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol());
 				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
 					if (hm.get(list[i][0]).getMaxSupply().equals("None"))
-						System.out.println("Max Supply: " + hm.get(list[i][0]).getMaxSupply() + " - This generally means the coin is not minable, or has all coins mined");
+						System.out.println("Max Supply: " + hm.get(list[i][0]).getMaxSupply() + " - This generally means the coin is not minable, or the information is not retrievable");
 					else
 						System.out.println("Max Supply: " + standardFormat.format(Double.parseDouble(hm.get(list[i][0]).getMaxSupply())));
 				}
@@ -77,6 +76,22 @@ public class main {
 					System.out.println("Percent available: " + ((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)));
 				else
 					System.out.println("Percent available: Not available");
+				if (!hm.get(list[i][0]).get24HrVol().equals("Not available"))
+						System.out.println("24 Hour Volume: " + moneyFormat.format(Double.parseDouble(hm.get(list[i][0]).get24HrVol())));
+				else
+					System.out.println("24 Hour Volume: " + hm.get(list[i][0]).get24HrVol());
+				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
+					System.out.println("Percent Hour Change: " + hm.get(list[i][0]).getPercentHour() + "%");
+				else
+					System.out.println("Percent Hour Change: " + hm.get(list[i][0]).getPercentHour());
+				if (!hm.get(list[i][0]).getPercentDay().equals("Not available"))
+					System.out.println("Percent 24 Hour Change: " + hm.get(list[i][0]).getPercentDay() + "%");
+				else
+					System.out.println("Percent 24 Hour Change: " + hm.get(list[i][0]).getPercentHour());
+				if (!hm.get(list[i][0]).getPercentWeek().equals("Not available"))
+					System.out.println("Percent 7 Day Change " + hm.get(list[i][0]).getPercentWeek() + "%");
+				else
+					System.out.println("Percent 7 Day Change " + hm.get(list[i][0]).getPercentWeek());
 				if (Double.parseDouble(hm.get(list[i][0]).getPrice()) <= 0.01) 
 					System.out.println("USD Value per coin: " + "$" + standardFormat.format(Double.parseDouble(hm.get(list[i][0]).getPrice())));
 				else
@@ -95,7 +110,13 @@ public class main {
 			Thread.sleep(5);//To prevent websites from getting angry
 			String base = baseURL  + list[i][0];
 			URL URL = new URL(base);
-			BufferedReader br = new BufferedReader(new InputStreamReader(URL.openStream()));
+			BufferedReader br;
+			try{
+				br = new BufferedReader(new InputStreamReader(URL.openStream()));
+			} catch (Exception e) {
+				System.out.println("That coin does not exist! - " + coin);//Very rough resolution to a coin not existing. Should make an error for this and throw it, and adjust the coins accordingly to not break the whole thing
+				break;
+			}
 
 			//Reads in entire json from web
 			String inputLine, tempLine = "";
@@ -161,12 +182,6 @@ public class main {
 			} catch (Exception e) {
 				percentWeek = "Not available";
 			}
-			if (!amount.equals("n")) //Throws an ex ception, seems to still pass in n as object
-				//currentValue = Double.parseDouble(list[i][1]) * Double.parseDouble(priceCoin);
-
-		//System.out.println("Approximate value of your held coins: " + moneyFormat.format(currentValue));
-		
-		//System.out.println(newString);
 
 			hm.put(nameCoin.toLowerCase(), new Coin(nameCoin, rank, symbolCoin, priceCoin, priceBtc, dayVol, marketCap, availableSupply, totalSupply, maxSupply, percentHour, percentDay, percentWeek));
 		}
@@ -190,7 +205,7 @@ public class main {
 		System.out.println("Reading HashMap...\n");
 	    FileInputStream fileIn = new FileInputStream("coins.coin");
 	    ObjectInputStream in = new ObjectInputStream(fileIn);
-	    HashMap<String, Coin> hm = (HashMap<String, Coin>)in.readObject();
+		HashMap<String, Coin> hm = (HashMap<String, Coin>)in.readObject();
 	    System.out.println("HashMap read successfully!");
 	    return hm;
 	}
