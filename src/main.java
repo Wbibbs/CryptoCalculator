@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,11 +35,13 @@ public class main {
 			coin = sc.nextLine().toLowerCase();
 			System.out.println("How many do you have? n for none");
 			amount = sc.nextLine();
+			if (amount.equals("n"))
+				amount = "0";
 			list[pos][0] = coin;
 			list[pos][1] = amount;
 			System.out.println("Do you have another coin to check? n for no");
-			if (sc.nextLine().toLowerCase().equals("n") || pos >= 5) {
-				if (pos >= 5)
+			if (sc.nextLine().toLowerCase().equals("n") || pos >= 4) {
+				if (pos >= 4)
 					System.out.println("Max of 5 coins only");
 				run = false;
 				break;
@@ -51,6 +56,7 @@ public class main {
 		serializeHashMap(hm);
 		hm = readHashMap();
 		printInfo(coin, amount, pos, list, hm);
+		writeSheet(hm, pos, list);
 		sc.close();
 	}
 
@@ -208,5 +214,63 @@ public class main {
 		HashMap<String, Coin> hm = (HashMap<String, Coin>)in.readObject();
 	    System.out.println("HashMap read successfully!");
 	    return hm;
+	}
+	
+	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list) throws IOException {
+		BufferedWriter bw = new BufferedWriter(new FileWriter("sheet.xls"));
+		for (int i = 0; i <= num; i++) {
+			try {
+				bw.write("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
+				bw.write(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
+				bw.write(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
+				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
+					if (hm.get(list[i][0]).getMaxSupply().equals("None"))
+						bw.write(hm.get(list[i][0]).getMaxSupply()  + ",");
+					else
+						bw.write(hm.get(list[i][0]).getMaxSupply() + ",");
+				}
+				if (!hm.get(list[i][0]).getTotalSupply().equals("Not available"))
+					bw.write((hm.get(list[i][0]).getTotalSupply()) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!hm.get(list[i][0]).getAvailableSupply().equals("Not available"))
+					bw.write((hm.get(list[i][0]).getAvailableSupply()) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!(hm.get(list[i][0]).getAvailableSupply().equals("Not available") || hm.get(list[i][0]).getTotalSupply().equals("Not available")))
+					bw.write(((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!hm.get(list[i][0]).get24HrVol().equals(",Not available"))
+						bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
+				else
+					bw.write(hm.get(list[i][0]).get24HrVol() + ",");
+				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
+					bw.write( hm.get(list[i][0]).getPercentHour() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+				if (!hm.get(list[i][0]).getPercentDay().equals("Not available"))
+					bw.write(hm.get(list[i][0]).getPercentDay() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+				if (!hm.get(list[i][0]).getPercentWeek().equals("Not available"))
+					bw.write(hm.get(list[i][0]).getPercentWeek() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentWeek() + ",");
+				if (Double.parseDouble(hm.get(list[i][0]).getPrice()) <= 0.01) 
+					bw.write((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPrice() + ",");
+
+				bw.write(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
+			} catch(Exception e) {
+				System.out.println(e);
+			}
+		}
+		bw.close();
+	}
+	
+	public int sort() {//Write sorting function for ranks to sort when printing to file
+		return 1;
 	}
 }
