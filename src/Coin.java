@@ -33,6 +33,22 @@ public class Coin implements Serializable{
 		this.percentWeek = percentWeek;
 	}
 	
+	public Coin(Coin coin) {
+		this.nameCoin = coin.getName();
+		this.rank = coin.getRank();
+		this.symbolCoin = coin.getSymbol();
+		this.priceCoin = coin.getPrice();
+		this.priceBtc = coin.getBtcPrice();
+		this.dayVol = coin.get24HrVol();
+		this.marketCap = coin.getMarketCap();
+		this.availableSupply = coin.getMaxSupply();
+		this.totalSupply = coin.getTotalSupply();
+		this.maxSupply = coin.getMaxSupply();
+		this.percentHour = coin.getPercentHour();
+		this.percentDay = coin.getPercentDay();
+		this.percentWeek = coin.getPercentWeek();
+	}
+
 	String getName() {
 		return nameCoin;
 	}

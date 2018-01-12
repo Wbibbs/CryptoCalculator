@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import org.json.*;
@@ -47,7 +48,7 @@ public class main {
 				break;
 			} 
 			pos++;
-			
+
 		}
 
 		hm = getInfo(coin, baseURL, amount, pos, list, hm);//Receives information from CoinMarketCap and puts it into a coin object and then into a hashmap for organization
@@ -57,6 +58,8 @@ public class main {
 		hm = readHashMap();
 		printInfo(coin, amount, pos, list, hm);
 		writeSheet(hm, pos, list);
+		String[][] writeList = sort(hm, pos, list);
+		writeSheet(hm, pos, list, writeList);
 		sc.close();
 	}
 
@@ -83,7 +86,7 @@ public class main {
 				else
 					System.out.println("Percent available: Not available");
 				if (!hm.get(list[i][0]).get24HrVol().equals("Not available"))
-						System.out.println("24 Hour Volume: " + moneyFormat.format(Double.parseDouble(hm.get(list[i][0]).get24HrVol())));
+					System.out.println("24 Hour Volume: " + moneyFormat.format(Double.parseDouble(hm.get(list[i][0]).get24HrVol())));
 				else
 					System.out.println("24 Hour Volume: " + hm.get(list[i][0]).get24HrVol());
 				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
@@ -194,7 +197,7 @@ public class main {
 		return hm;
 
 	}
-	
+
 	public static void serializeHashMap(HashMap<String, Coin> hm) {//Serializes HashMap to coins.coin
 
 		System.out.println("Serializing HashMap...\n");
@@ -206,16 +209,16 @@ public class main {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static HashMap<String, Coin> readHashMap() throws Exception {//Reads in HashMap from file coins.coin
 		System.out.println("Reading HashMap...\n");
-	    FileInputStream fileIn = new FileInputStream("coins.coin");
-	    ObjectInputStream in = new ObjectInputStream(fileIn);
+		FileInputStream fileIn = new FileInputStream("coins.coin");
+		ObjectInputStream in = new ObjectInputStream(fileIn);
 		HashMap<String, Coin> hm = (HashMap<String, Coin>)in.readObject();
-	    System.out.println("HashMap read successfully!");
-	    return hm;
+		System.out.println("HashMap read successfully!");
+		return hm;
 	}
-	
+
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list) throws IOException {
 		BufferedWriter bw = new BufferedWriter(new FileWriter("sheet.xls"));
 		for (int i = 0; i <= num; i++) {
@@ -242,7 +245,7 @@ public class main {
 				else
 					bw.write("Not available" + ",");
 				if (!hm.get(list[i][0]).get24HrVol().equals(",Not available"))
-						bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
+					bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
 				else
 					bw.write(hm.get(list[i][0]).get24HrVol() + ",");
 				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
@@ -269,8 +272,84 @@ public class main {
 		}
 		bw.close();
 	}
-	
-	public int sort() {//Write sorting function for ranks to sort when printing to file
-		return 1;
+
+	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list, String[][] writeList) throws IOException {//Write a second writeSheet method using the organized writeList
+		BufferedWriter bw = new BufferedWriter(new FileWriter("sheet.xls"));
+		for (int i = 0; i <= num; i++) {
+			try {
+				bw.write("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
+				bw.write(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
+				bw.write(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
+				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
+					if (hm.get(list[i][0]).getMaxSupply().equals("None"))
+						bw.write(hm.get(list[i][0]).getMaxSupply()  + ",");
+					else
+						bw.write(hm.get(list[i][0]).getMaxSupply() + ",");
+				}
+				if (!hm.get(list[i][0]).getTotalSupply().equals("Not available"))
+					bw.write((hm.get(list[i][0]).getTotalSupply()) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!hm.get(list[i][0]).getAvailableSupply().equals("Not available"))
+					bw.write((hm.get(list[i][0]).getAvailableSupply()) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!(hm.get(list[i][0]).getAvailableSupply().equals("Not available") || hm.get(list[i][0]).getTotalSupply().equals("Not available")))
+					bw.write(((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)) + ",");
+				else
+					bw.write("Not available" + ",");
+				if (!hm.get(list[i][0]).get24HrVol().equals(",Not available"))
+					bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
+				else
+					bw.write(hm.get(list[i][0]).get24HrVol() + ",");
+				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
+					bw.write( hm.get(list[i][0]).getPercentHour() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+				if (!hm.get(list[i][0]).getPercentDay().equals("Not available"))
+					bw.write(hm.get(list[i][0]).getPercentDay() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+				if (!hm.get(list[i][0]).getPercentWeek().equals("Not available"))
+					bw.write(hm.get(list[i][0]).getPercentWeek() + "%" + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPercentWeek() + ",");
+				if (Double.parseDouble(hm.get(list[i][0]).getPrice()) <= 0.01) 
+					bw.write((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
+				else
+					bw.write(hm.get(list[i][0]).getPrice() + ",");
+
+				bw.write(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
+			} catch(Exception e) {
+				System.out.println(e);
+			}
+		}
+		bw.close();
+	}
+	public static String[][] sort(HashMap<String, Coin> hm, int num, String[][] list) {//Write sorting function for ranks to sort when printing to file
+		String[][] l = new String[5][2];
+		for (int i = 0; i < num; i++) {
+			l[i][0] = hm.get(list[i][0]).getRank();
+			l[i][1] = hm.get(list[i][1]).getName();
+		}
+
+		for (int i = 0; i < num; i++) {
+			for (int n = 0; n < num; n++) {
+				if (i < num) {
+					if (Integer.parseInt(l[i][0]) > Integer.parseInt(l[i+1][0])) {
+						String temp;
+						String temp2;
+						temp = l[i][0];
+						temp2 = l[i][1];
+						l[i][0] = l[i + 1][0];
+						l[i][1] = l[i + 1][1];
+						l[1 + 1][0] = temp;
+						l[i + 1][1] = temp2;
+					}
+				}
+			}
+		}
+
+		return l;
 	}
 }
