@@ -58,8 +58,9 @@ public class main {
 		hm = readHashMap();
 		printInfo(coin, amount, pos, list, hm);
 		writeSheet(hm, pos, list);
-		String[][] writeList = sort(hm, pos, list);
-		writeSheet(hm, pos, list, writeList);
+		String[][] writeList = sort(hm, pos, list);//Gets sorted list
+		//System.out.println(writeList.toString());
+		//writeSheet(hm, pos, list, writeList);//Writes sorted list, currently throws nulls when accessing coin names
 		sc.close();
 	}
 
@@ -278,48 +279,48 @@ public class main {
 		for (int i = 0; i <= num; i++) {
 			try {
 				bw.write("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
-				bw.write(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
-				bw.write(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
-				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
-					if (hm.get(list[i][0]).getMaxSupply().equals("None"))
-						bw.write(hm.get(list[i][0]).getMaxSupply()  + ",");
+				bw.write(hm.get(writeList[0][i]).getRank() + ",");//Writes everything else from here below
+				bw.write(hm.get(writeList[0][i]).getName() + " - " + hm.get(writeList[0][i]).getSymbol() + ",");
+				if (!hm.get(writeList[0][i]).getMaxSupply().equals("Not available")) {
+					if (hm.get(writeList[0][i]).getMaxSupply().equals("None"))
+						bw.write(hm.get(writeList[0][i]).getMaxSupply()  + ",");
 					else
-						bw.write(hm.get(list[i][0]).getMaxSupply() + ",");
+						bw.write(hm.get(writeList[0][i]).getMaxSupply() + ",");
 				}
-				if (!hm.get(list[i][0]).getTotalSupply().equals("Not available"))
-					bw.write((hm.get(list[i][0]).getTotalSupply()) + ",");
+				if (!hm.get(writeList[0][i]).getTotalSupply().equals("Not available"))
+					bw.write((hm.get(writeList[0][i]).getTotalSupply()) + ",");
 				else
 					bw.write("Not available" + ",");
-				if (!hm.get(list[i][0]).getAvailableSupply().equals("Not available"))
-					bw.write((hm.get(list[i][0]).getAvailableSupply()) + ",");
+				if (!hm.get(writeList[0][i]).getAvailableSupply().equals("Not available"))
+					bw.write((hm.get(writeList[0][i]).getAvailableSupply()) + ",");
 				else
 					bw.write("Not available" + ",");
-				if (!(hm.get(list[i][0]).getAvailableSupply().equals("Not available") || hm.get(list[i][0]).getTotalSupply().equals("Not available")))
-					bw.write(((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)) + ",");
+				if (!(hm.get(writeList[0][i]).getAvailableSupply().equals("Not available") || hm.get(writeList[0][i]).getTotalSupply().equals("Not available")))
+					bw.write(((Double.parseDouble(hm.get(writeList[0][i]).getAvailableSupply()) / Double.parseDouble(hm.get(writeList[0][i]).getTotalSupply()) * 100)) + ",");
 				else
 					bw.write("Not available" + ",");
-				if (!hm.get(list[i][0]).get24HrVol().equals(",Not available"))
-					bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
+				if (!hm.get(writeList[0][i]).get24HrVol().equals(",Not available"))
+					bw.write((hm.get(writeList[0][i]).get24HrVol()) + ",");
 				else
-					bw.write(hm.get(list[i][0]).get24HrVol() + ",");
-				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
-					bw.write( hm.get(list[i][0]).getPercentHour() + "%" + ",");
+					bw.write(hm.get(writeList[0][i]).get24HrVol() + ",");
+				if (!hm.get(writeList[0][i]).getPercentHour().equals("Not available"))
+					bw.write( hm.get(writeList[0][i]).getPercentHour() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
-				if (!hm.get(list[i][0]).getPercentDay().equals("Not available"))
-					bw.write(hm.get(list[i][0]).getPercentDay() + "%" + ",");
+					bw.write(hm.get(writeList[0][i]).getPercentHour() + ",");
+				if (!hm.get(writeList[0][i]).getPercentDay().equals("Not available"))
+					bw.write(hm.get(writeList[0][i]).getPercentDay() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
-				if (!hm.get(list[i][0]).getPercentWeek().equals("Not available"))
-					bw.write(hm.get(list[i][0]).getPercentWeek() + "%" + ",");
+					bw.write(hm.get(writeList[0][i]).getPercentHour() + ",");
+				if (!hm.get(writeList[0][i]).getPercentWeek().equals("Not available"))
+					bw.write(hm.get(writeList[0][i]).getPercentWeek() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentWeek() + ",");
-				if (Double.parseDouble(hm.get(list[i][0]).getPrice()) <= 0.01) 
-					bw.write((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
+					bw.write(hm.get(writeList[0][i]).getPercentWeek() + ",");
+				if (Double.parseDouble(hm.get(writeList[0][i]).getPrice()) <= 0.01) 
+					bw.write((Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPrice() + ",");
+					bw.write(hm.get(writeList[0][i]).getPrice() + ",");
 
-				bw.write(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
+				bw.write(((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + "\n\n");
 			} catch(Exception e) {
 				System.out.println(e);
 			}
@@ -328,23 +329,23 @@ public class main {
 	}
 	public static String[][] sort(HashMap<String, Coin> hm, int num, String[][] list) {//Write sorting function for ranks to sort when printing to file
 		String[][] l = new String[5][2];
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i <= num; i++) {
 			l[i][0] = hm.get(list[i][0]).getRank();
-			l[i][1] = hm.get(list[i][1]).getName();
+			l[i][1] = hm.get(list[i][0]).getName();
 		}
 
-		for (int i = 0; i < num; i++) {
-			for (int n = 0; n < num; n++) {
+		for (int i = 0; i <= num; i++) {
+			for (int n = 0; n <= num; n++) {
 				if (i < num) {
 					if (Integer.parseInt(l[i][0]) > Integer.parseInt(l[i+1][0])) {
 						String temp;
 						String temp2;
-						temp = l[i][0];
-						temp2 = l[i][1];
+						temp2 = l[i][0];
+						temp = l[i][1];
 						l[i][0] = l[i + 1][0];
 						l[i][1] = l[i + 1][1];
-						l[1 + 1][0] = temp;
-						l[i + 1][1] = temp2;
+						l[i + 1][0] = temp2;
+						l[i + 1][1] = temp;
 					}
 				}
 			}
