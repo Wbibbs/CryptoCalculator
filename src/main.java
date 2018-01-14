@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -8,8 +9,10 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
 import org.json.*;
@@ -221,52 +224,55 @@ public class main {
 	}
 
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list) throws IOException {
-		BufferedWriter bw = new BufferedWriter(new FileWriter("sheet.xls"));
+		File file = new File ("sheet.xls");
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
+		Date date = new Date();
+		bw.append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date) + "\n");
 		for (int i = 0; i <= num; i++) {
 			try {
-				bw.write("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
-				bw.write(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
-				bw.write(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
+				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
+				bw.append(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
+				bw.append(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
 				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
 					if (hm.get(list[i][0]).getMaxSupply().equals("None"))
-						bw.write(hm.get(list[i][0]).getMaxSupply()  + ",");
+						bw.append(hm.get(list[i][0]).getMaxSupply()  + ",");
 					else
-						bw.write(hm.get(list[i][0]).getMaxSupply() + ",");
+						bw.append(hm.get(list[i][0]).getMaxSupply() + ",");
 				}
 				if (!hm.get(list[i][0]).getTotalSupply().equals("Not available"))
-					bw.write((hm.get(list[i][0]).getTotalSupply()) + ",");
+					bw.append((hm.get(list[i][0]).getTotalSupply()) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!hm.get(list[i][0]).getAvailableSupply().equals("Not available"))
-					bw.write((hm.get(list[i][0]).getAvailableSupply()) + ",");
+					bw.append((hm.get(list[i][0]).getAvailableSupply()) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!(hm.get(list[i][0]).getAvailableSupply().equals("Not available") || hm.get(list[i][0]).getTotalSupply().equals("Not available")))
-					bw.write(((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)) + ",");
+					bw.append(((Double.parseDouble(hm.get(list[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(list[i][0]).getTotalSupply()) * 100)) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!hm.get(list[i][0]).get24HrVol().equals(",Not available"))
-					bw.write((hm.get(list[i][0]).get24HrVol()) + ",");
+					bw.append((hm.get(list[i][0]).get24HrVol()) + ",");
 				else
-					bw.write(hm.get(list[i][0]).get24HrVol() + ",");
+					bw.append(hm.get(list[i][0]).get24HrVol() + ",");
 				if (!hm.get(list[i][0]).getPercentHour().equals("Not available"))
-					bw.write( hm.get(list[i][0]).getPercentHour() + "%" + ",");
+					bw.append( hm.get(list[i][0]).getPercentHour() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+					bw.append(hm.get(list[i][0]).getPercentHour() + ",");
 				if (!hm.get(list[i][0]).getPercentDay().equals("Not available"))
-					bw.write(hm.get(list[i][0]).getPercentDay() + "%" + ",");
+					bw.append(hm.get(list[i][0]).getPercentDay() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentHour() + ",");
+					bw.append(hm.get(list[i][0]).getPercentHour() + ",");
 				if (!hm.get(list[i][0]).getPercentWeek().equals("Not available"))
-					bw.write(hm.get(list[i][0]).getPercentWeek() + "%" + ",");
+					bw.append(hm.get(list[i][0]).getPercentWeek() + "%" + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPercentWeek() + ",");
+					bw.append(hm.get(list[i][0]).getPercentWeek() + ",");
 				if (Double.parseDouble(hm.get(list[i][0]).getPrice()) <= 0.01) 
-					bw.write((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
+					bw.append((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
 				else
-					bw.write(hm.get(list[i][0]).getPrice() + ",");
+					bw.append(hm.get(list[i][0]).getPrice() + ",");
 
-				bw.write(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
+				bw.append(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
 			} catch(Exception e) {
 				System.out.println(e);
 			}
@@ -275,52 +281,53 @@ public class main {
 	}
 
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list, String[][] writeList) throws IOException {//Write a second writeSheet method using the organized writeList
-		BufferedWriter bw = new BufferedWriter(new FileWriter("sheet.xls"));
+		File file = new File ("sheet.xls");
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 		for (int i = 0; i <= num; i++) {
 			try {
-				bw.write("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
-				bw.write(hm.get(writeList[0][i]).getRank() + ",");//Writes everything else from here below
-				bw.write(hm.get(writeList[0][i]).getName() + " - " + hm.get(writeList[0][i]).getSymbol() + ",");
+				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
+				bw.append(hm.get(writeList[0][i]).getRank() + ",");//Writes everything else from here below
+				bw.append(hm.get(writeList[0][i]).getName() + " - " + hm.get(writeList[0][i]).getSymbol() + ",");
 				if (!hm.get(writeList[0][i]).getMaxSupply().equals("Not available")) {
 					if (hm.get(writeList[0][i]).getMaxSupply().equals("None"))
-						bw.write(hm.get(writeList[0][i]).getMaxSupply()  + ",");
+						bw.append(hm.get(writeList[0][i]).getMaxSupply()  + ",");
 					else
-						bw.write(hm.get(writeList[0][i]).getMaxSupply() + ",");
+						bw.append(hm.get(writeList[0][i]).getMaxSupply() + ",");
 				}
 				if (!hm.get(writeList[0][i]).getTotalSupply().equals("Not available"))
-					bw.write((hm.get(writeList[0][i]).getTotalSupply()) + ",");
+					bw.append((hm.get(writeList[0][i]).getTotalSupply()) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!hm.get(writeList[0][i]).getAvailableSupply().equals("Not available"))
-					bw.write((hm.get(writeList[0][i]).getAvailableSupply()) + ",");
+					bw.append((hm.get(writeList[0][i]).getAvailableSupply()) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!(hm.get(writeList[0][i]).getAvailableSupply().equals("Not available") || hm.get(writeList[0][i]).getTotalSupply().equals("Not available")))
-					bw.write(((Double.parseDouble(hm.get(writeList[0][i]).getAvailableSupply()) / Double.parseDouble(hm.get(writeList[0][i]).getTotalSupply()) * 100)) + ",");
+					bw.append(((Double.parseDouble(hm.get(writeList[0][i]).getAvailableSupply()) / Double.parseDouble(hm.get(writeList[0][i]).getTotalSupply()) * 100)) + ",");
 				else
-					bw.write("Not available" + ",");
+					bw.append("Not available" + ",");
 				if (!hm.get(writeList[0][i]).get24HrVol().equals(",Not available"))
-					bw.write((hm.get(writeList[0][i]).get24HrVol()) + ",");
+					bw.append((hm.get(writeList[0][i]).get24HrVol()) + ",");
 				else
-					bw.write(hm.get(writeList[0][i]).get24HrVol() + ",");
+					bw.append(hm.get(writeList[0][i]).get24HrVol() + ",");
 				if (!hm.get(writeList[0][i]).getPercentHour().equals("Not available"))
-					bw.write( hm.get(writeList[0][i]).getPercentHour() + "%" + ",");
+					bw.append( hm.get(writeList[0][i]).getPercentHour() + "%" + ",");
 				else
-					bw.write(hm.get(writeList[0][i]).getPercentHour() + ",");
+					bw.append(hm.get(writeList[0][i]).getPercentHour() + ",");
 				if (!hm.get(writeList[0][i]).getPercentDay().equals("Not available"))
-					bw.write(hm.get(writeList[0][i]).getPercentDay() + "%" + ",");
+					bw.append(hm.get(writeList[0][i]).getPercentDay() + "%" + ",");
 				else
-					bw.write(hm.get(writeList[0][i]).getPercentHour() + ",");
+					bw.append(hm.get(writeList[0][i]).getPercentHour() + ",");
 				if (!hm.get(writeList[0][i]).getPercentWeek().equals("Not available"))
-					bw.write(hm.get(writeList[0][i]).getPercentWeek() + "%" + ",");
+					bw.append(hm.get(writeList[0][i]).getPercentWeek() + "%" + ",");
 				else
-					bw.write(hm.get(writeList[0][i]).getPercentWeek() + ",");
+					bw.append(hm.get(writeList[0][i]).getPercentWeek() + ",");
 				if (Double.parseDouble(hm.get(writeList[0][i]).getPrice()) <= 0.01) 
-					bw.write((Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + ",");
+					bw.append((Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + ",");
 				else
-					bw.write(hm.get(writeList[0][i]).getPrice() + ",");
+					bw.append(hm.get(writeList[0][i]).getPrice() + ",");
 
-				bw.write(((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + "\n\n");
+				bw.append(((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + "\n\n");
 			} catch(Exception e) {
 				System.out.println(e);
 			}
