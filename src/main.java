@@ -227,7 +227,7 @@ public class main {
 		File file = new File ("sheet.xls");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 		Date date = new Date();
-		bw.append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(date) + "\n");
+		bw.append(date + "\n");
 		for (int i = 0; i <= num; i++) {
 			try {
 				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
