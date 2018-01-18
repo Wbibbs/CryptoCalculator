@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,8 +27,10 @@ public class main {
 
 	static DecimalFormat moneyFormat = new DecimalFormat("$#,##0.00");
 	static DecimalFormat standardFormat = new DecimalFormat("#,###.########");
+	static DecimalFormat df = new DecimalFormat("0.#");
 	public static void main(String[] args) throws Exception {
 
+		df.setMaximumFractionDigits(16);
 		HashMap<String, Coin> hm = new HashMap<String, Coin>();
 		String baseURL = "https://api.coinmarketcap.com/v1/ticker/";
 		Scanner sc = new Scanner(System.in);
@@ -109,11 +113,15 @@ public class main {
 					System.out.println("USD Value per coin: " + "$" + standardFormat.format(Double.parseDouble(hm.get(list[i][0]).getPrice())));
 				else
 					System.out.println("USD Value per coin: " + moneyFormat.format(Double.parseDouble(hm.get(list[i][0]).getPrice())));
-
-				if (!list[i][1].equals("n"))
-					System.out.println("Approximate value of held coins: " + moneyFormat.format((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())));
+				if (!hm.get(list[0][i]).getBtcPrice().equals("Not available")) 
+					System.out.println("Bitcoin Value per coin: " + df.format(new BigDecimal(Double.parseDouble(hm.get(list[i][0]).getBtcPrice()))));
+					else
+						System.out.println("Bitcoin Value Per Coin: Not available");
+				if (!list[i][1].equals("n")) {
+					System.out.println("\nApproximate USD value of held coins: " + moneyFormat.format((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())));
+					System.out.println("Approximate Bitcoin value of held coins: " + df.format(new BigDecimal((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getBtcPrice()))));
+				}
 			} catch(Exception e) {
-				System.out.println(e);
 			}
 		}
 	}
@@ -224,13 +232,15 @@ public class main {
 	}
 
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list) throws IOException {
-		File file = new File ("sheet.xls");
+	//	SimpleDateFormat d = new SimpleDateFormat("dd/M/yyyy");
+	//	File file = new File (d.format(new Date()) + " coinsheet.xls");
+		File file = new File ("coinsheet.xls");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 		Date date = new Date();
 		bw.append(date + "\n");
 		for (int i = 0; i <= num; i++) {
 			try {
-				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
+				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Bitcoin Value Per Coin, Number of Coins Held, Approx. USD value of Held Coins, Approx. Bitcoin value of Held Coins\n");//Writes header line
 				bw.append(hm.get(list[i][0]).getRank() + ",");//Writes everything else from here below
 				bw.append(hm.get(list[i][0]).getName() + " - " + hm.get(list[i][0]).getSymbol() + ",");
 				if (!hm.get(list[i][0]).getMaxSupply().equals("Not available")) {
@@ -271,10 +281,18 @@ public class main {
 					bw.append((Double.parseDouble(hm.get(list[i][0]).getPrice())) + ",");
 				else
 					bw.append(hm.get(list[i][0]).getPrice() + ",");
-
-				bw.append(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice())) + "\n\n");
+				if (Double.parseDouble(hm.get(list[0][i]).getBtcPrice()) <= 0.01) 
+					bw.append((Double.parseDouble(hm.get(list[0][i]).getBtcPrice())) + ",");
+				else
+					bw.append(hm.get(list[0][i]).getBtcPrice() + ",");
+				if (!list[i][1].equals("n")) {
+					bw.append(list[i][1] + ",");
+					bw.append((moneyFormat.format((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getPrice()))) + ",");
+					bw.append(((Double.parseDouble(list[i][1])) * Double.parseDouble(hm.get(list[i][0]).getBtcPrice())) + " BTC\n\n");
+				} else
+					bw.append("None, None, None\n\n");
+				
 			} catch(Exception e) {
-				System.out.println(e);
 			}
 		}
 		bw.close();
@@ -285,51 +303,59 @@ public class main {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 		for (int i = 0; i <= num; i++) {
 			try {
-				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Approx. Value of Held Coins\n");//Writes header line
-				bw.append(hm.get(writeList[0][i]).getRank() + ",");//Writes everything else from here below
-				bw.append(hm.get(writeList[0][i]).getName() + " - " + hm.get(writeList[0][i]).getSymbol() + ",");
-				if (!hm.get(writeList[0][i]).getMaxSupply().equals("Not available")) {
-					if (hm.get(writeList[0][i]).getMaxSupply().equals("None"))
-						bw.append(hm.get(writeList[0][i]).getMaxSupply()  + ",");
+				bw.append("Rank, Name, Max Supply, Total Supply, Available Supply, Percent Available, 24 Hour Volume, Percent Change: Hour, Percent Change: 24 Hour, Percent Change: 7 Day, USD Value Per Coin, Bitcoin Value Per Coin, Number of Coins Held, Approx. USD value of Held Coins, Approx. Bitcoin value of Held Coins\n");//Writes header line
+				bw.append(hm.get(writeList[i][0]).getRank() + ",");//Writes everything else from here below
+				bw.append(hm.get(writeList[i][0]).getName() + " - " + hm.get(writeList[i][0]).getSymbol() + ",");
+				if (!hm.get(writeList[i][0]).getMaxSupply().equals("Not available")) {
+					if (hm.get(writeList[i][0]).getMaxSupply().equals("None"))
+						bw.append(hm.get(writeList[i][0]).getMaxSupply()  + ",");
 					else
-						bw.append(hm.get(writeList[0][i]).getMaxSupply() + ",");
+						bw.append(hm.get(writeList[i][0]).getMaxSupply() + ",");
 				}
-				if (!hm.get(writeList[0][i]).getTotalSupply().equals("Not available"))
-					bw.append((hm.get(writeList[0][i]).getTotalSupply()) + ",");
+				if (!hm.get(writeList[i][0]).getTotalSupply().equals("Not available"))
+					bw.append((hm.get(writeList[i][0]).getTotalSupply()) + ",");
 				else
 					bw.append("Not available" + ",");
-				if (!hm.get(writeList[0][i]).getAvailableSupply().equals("Not available"))
-					bw.append((hm.get(writeList[0][i]).getAvailableSupply()) + ",");
+				if (!hm.get(writeList[i][0]).getAvailableSupply().equals("Not available"))
+					bw.append((hm.get(writeList[i][0]).getAvailableSupply()) + ",");
 				else
 					bw.append("Not available" + ",");
-				if (!(hm.get(writeList[0][i]).getAvailableSupply().equals("Not available") || hm.get(writeList[0][i]).getTotalSupply().equals("Not available")))
-					bw.append(((Double.parseDouble(hm.get(writeList[0][i]).getAvailableSupply()) / Double.parseDouble(hm.get(writeList[0][i]).getTotalSupply()) * 100)) + ",");
+				if (!(hm.get(writeList[i][0]).getAvailableSupply().equals("Not available") || hm.get(writeList[i][0]).getTotalSupply().equals("Not available")))
+					bw.append(((Double.parseDouble(hm.get(writeList[i][0]).getAvailableSupply()) / Double.parseDouble(hm.get(writeList[i][0]).getTotalSupply()) * 100)) + ",");
 				else
 					bw.append("Not available" + ",");
-				if (!hm.get(writeList[0][i]).get24HrVol().equals(",Not available"))
-					bw.append((hm.get(writeList[0][i]).get24HrVol()) + ",");
+				if (!hm.get(writeList[i][0]).get24HrVol().equals(",Not available"))
+					bw.append((hm.get(writeList[i][0]).get24HrVol()) + ",");
 				else
-					bw.append(hm.get(writeList[0][i]).get24HrVol() + ",");
-				if (!hm.get(writeList[0][i]).getPercentHour().equals("Not available"))
-					bw.append( hm.get(writeList[0][i]).getPercentHour() + "%" + ",");
+					bw.append(hm.get(writeList[i][0]).get24HrVol() + ",");
+				if (!hm.get(writeList[i][0]).getPercentHour().equals("Not available"))
+					bw.append( hm.get(writeList[i][0]).getPercentHour() + "%" + ",");
 				else
-					bw.append(hm.get(writeList[0][i]).getPercentHour() + ",");
-				if (!hm.get(writeList[0][i]).getPercentDay().equals("Not available"))
-					bw.append(hm.get(writeList[0][i]).getPercentDay() + "%" + ",");
+					bw.append(hm.get(writeList[i][0]).getPercentHour() + ",");
+				if (!hm.get(writeList[i][0]).getPercentDay().equals("Not available"))
+					bw.append(hm.get(writeList[i][0]).getPercentDay() + "%" + ",");
 				else
-					bw.append(hm.get(writeList[0][i]).getPercentHour() + ",");
-				if (!hm.get(writeList[0][i]).getPercentWeek().equals("Not available"))
-					bw.append(hm.get(writeList[0][i]).getPercentWeek() + "%" + ",");
+					bw.append(hm.get(writeList[i][0]).getPercentHour() + ",");
+				if (!hm.get(writeList[i][0]).getPercentWeek().equals("Not available"))
+					bw.append(hm.get(writeList[i][0]).getPercentWeek() + "%" + ",");
 				else
-					bw.append(hm.get(writeList[0][i]).getPercentWeek() + ",");
-				if (Double.parseDouble(hm.get(writeList[0][i]).getPrice()) <= 0.01) 
-					bw.append((Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + ",");
+					bw.append(hm.get(writeList[i][0]).getPercentWeek() + ",");
+				if (Double.parseDouble(hm.get(writeList[i][0]).getPrice()) <= 0.01) 
+					bw.append((Double.parseDouble(hm.get(writeList[i][0]).getPrice())) + ",");
 				else
-					bw.append(hm.get(writeList[0][i]).getPrice() + ",");
-
-				bw.append(((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[0][i]).getPrice())) + "\n\n");
+					bw.append(hm.get(writeList[i][0]).getPrice() + ",");
+				if (Double.parseDouble(hm.get(writeList[0][i]).getBtcPrice()) <= 0.01) 
+					bw.append((Double.parseDouble(hm.get(writeList[0][i]).getBtcPrice())) + ",");
+				else
+					bw.append(hm.get(writeList[0][i]).getBtcPrice() + ",");
+				if (!writeList[i][1].equals("n")) {
+					bw.append(writeList[i][1] + ",");
+					bw.append((moneyFormat.format((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[i][0]).getPrice()))) + ",");
+					bw.append(((Double.parseDouble(writeList[i][1])) * Double.parseDouble(hm.get(writeList[i][0]).getBtcPrice())) + " BTC\n\n");
+				} else
+					bw.append("None, None, None\n\n");
+				
 			} catch(Exception e) {
-				System.out.println(e);
 			}
 		}
 		bw.close();
