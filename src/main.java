@@ -64,8 +64,9 @@ public class main {
 		serializeHashMap(hm);
 		hm = readHashMap();
 		printInfo(coin, amount, pos, list, hm);
-		writeSheet(hm, pos, list);
+		//writeSheet(hm, pos, list);
 		String[][] writeList = sort(hm, pos, list);//Gets sorted list
+		writeSheet(hm, pos, writeList);
 		//System.out.println(writeList.toString());
 		//writeSheet(hm, pos, list, writeList);//Writes sorted list, currently throws nulls when accessing coin names
 		sc.close();
@@ -231,9 +232,17 @@ public class main {
 		return hm;
 	}
 
+	public static String[][] swap(String[][] a){//Making a bug a feature, need to swap values correctly and remove this 'fix'
+		for (int i = 0; i <= 5; i++) {
+			a[i][0] = a[0][i];
+			a[i][1] = a[i][1];
+		}
+		return a;
+	}
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list) throws IOException {
 	//	SimpleDateFormat d = new SimpleDateFormat("dd/M/yyyy");
 	//	File file = new File (d.format(new Date()) + " coinsheet.xls");
+		list = swap(list);
 		File file = new File ("coinsheet.xls");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 		Date date = new Date();
@@ -356,6 +365,7 @@ public class main {
 					bw.append("None, None, None\n\n");
 				
 			} catch(Exception e) {
+				e.printStackTrace();
 			}
 		}
 		bw.close();
@@ -367,20 +377,18 @@ public class main {
 			l[i][1] = hm.get(list[i][0]).getName();
 		}
 
-		for (int i = 0; i <= num; i++) {
-			for (int n = 0; n <= num; n++) {
-				if (i < num) {
-					if (Integer.parseInt(l[i][0]) > Integer.parseInt(l[i+1][0])) {
-						String temp;
-						String temp2;
-						temp2 = l[i][0];
-						temp = l[i][1];
-						l[i][0] = l[i + 1][0];
-						l[i][1] = l[i + 1][1];
-						l[i + 1][0] = temp2;
-						l[i + 1][1] = temp;
+		for (int i = 0; i < num; i++) {
+			for (int n = 0; n <= num - 1; n++) {
+				//if (n < num && l[i+1][0] != null) {
+					if (Integer.parseInt(l[n][0]) > Integer.parseInt(l[n+1][0])) {
+						String temp = l[n][1];
+						String temp2 = l[n][0];
+						l[n][0] = l[n + 1][0];
+						l[n][1] = l[n + 1][1];
+						l[n + 1][0] = temp2;
+						l[n + 1][1] = temp;
 					}
-				}
+				//}
 			}
 		}
 
