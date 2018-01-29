@@ -29,13 +29,15 @@ public class SortWords {
 		for (int i = 0; i < hm.size(); i++) {
 			for (int n = 0; n < hm.size() - i; n++) {
 				int num1 = Integer.parseInt(getValue(l.get(i)));
-				if (num1 != num2) {
+				if (num1 != num2) {//Gets values properly, but does not compair properly
+					//!!!!!!!!!!!!!!!!!!!!!HASHMAP VALUE HAS THE WEIGHT AS THE KEY, AND RETURNS COIN NAME!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					//Code to traverse hashmap and find values, add to arraylist, and then proceed to compair all gathered
 					//values to the input value, and find closest
-				}
+					l.add(hm.get(i));
+				} else
+					System.out.println("Exact value found");
 			}
 		}
-		
 	}
 
 	public static ArrayList<String> loadCoins() throws IOException{
@@ -43,14 +45,16 @@ public class SortWords {
 		ArrayList<String> l = new ArrayList<String>();
 		for (int i = 0; i < 1; i++) 
 			l.add(br.readLine());
+		br.close();
 		return l;
 	}
 	public static HashMap<String, String> loadCoins(HashMap<String, String> hm) throws IOException{
 		BufferedReader br = new BufferedReader(new FileReader("coinlist.txt"));
 		for (int i = 0; i < 1; i++) {
 			String temp = br.readLine();
-			hm.put(temp, getValue(temp));
+			hm.put(getValue(temp), temp);
 		}
+		br.close();
 		return hm;
 	}
 	

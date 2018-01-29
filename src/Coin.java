@@ -33,7 +33,7 @@ public class Coin implements Serializable{
 		this.percentWeek = percentWeek;
 	}
 	
-	public Coin(Coin coin) {
+	Coin(Coin coin) {
 		this.nameCoin = coin.getName();
 		this.rank = coin.getRank();
 		this.symbolCoin = coin.getSymbol();

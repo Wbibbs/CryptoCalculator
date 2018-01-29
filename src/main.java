@@ -41,6 +41,7 @@ public class main {
 		while (run) {
 			System.out.println("Enter a currency you want to check (Full coin name, such as Bitcoin, Reddcoin, etc.)"); //Full coin name, ex. bitcoin, reddcoin
 			coin = sc.nextLine().toLowerCase();
+			//checkCoin(coin);//Method to check if the coin exists, and suggests a coin similar to it
 			System.out.println("How many do you have? n for none");
 			amount = sc.nextLine();
 			if (amount.equals("n"))
@@ -71,7 +72,11 @@ public class main {
 		//writeSheet(hm, pos, list, writeList);//Writes sorted list, currently throws nulls when accessing coin names
 		sc.close();
 	}
-
+	
+	public static void checkCoin(String c) {
+		
+	}
+	
 	public static void printInfo(String coin, String amount, int num, String[][] list, HashMap<String, Coin> hm) {
 		for (int i = 0; i <= num; i++) {
 			try {
@@ -126,7 +131,6 @@ public class main {
 			}
 		}
 	}
-
 	public static HashMap<String, Coin> getInfo(String coin, String baseURL, String amount, int num, String[][] list, HashMap<String, Coin> hm) throws Exception {
 		for (int i = 0; i <= num; i++) {
 			Thread.sleep(5);//To prevent websites from getting angry
@@ -210,7 +214,6 @@ public class main {
 		return hm;
 
 	}
-
 	public static void serializeHashMap(HashMap<String, Coin> hm) {//Serializes HashMap to coins.coin
 
 		System.out.println("Serializing HashMap...\n");
@@ -222,7 +225,6 @@ public class main {
 			e.printStackTrace();
 		}
 	}
-
 	public static HashMap<String, Coin> readHashMap() throws Exception {//Reads in HashMap from file coins.coin
 		System.out.println("Reading HashMap...\n");
 		FileInputStream fileIn = new FileInputStream("coins.coin");
@@ -231,7 +233,6 @@ public class main {
 		System.out.println("HashMap read successfully!");
 		return hm;
 	}
-
 	public static String[][] swap(String[][] a){//Making a bug a feature, need to swap values correctly and remove this 'fix'
 		for (int i = 0; i <= 5; i++) {
 			a[i][0] = a[0][i];
@@ -306,7 +307,6 @@ public class main {
 		}
 		bw.close();
 	}
-
 	public static void writeSheet(HashMap<String, Coin> hm, int num, String[][] list, String[][] writeList) throws IOException {//Write a second writeSheet method using the organized writeList
 		File file = new File ("sheet.xls");
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
@@ -370,16 +370,15 @@ public class main {
 		}
 		bw.close();
 	}
-	public static String[][] sort(HashMap<String, Coin> hm, int num, String[][] list) {//Write sorting function for ranks to sort when printing to file
+	public static String[][] sort(HashMap<String, Coin> hm, int num, String[][] list) {
 		String[][] l = new String[5][2];
-		for (int i = 0; i <= num; i++) {
+		for (int i = 0; i <= num; i++) {//Puts the coin rank and name into an array to sort
 			l[i][0] = hm.get(list[i][0]).getRank();
 			l[i][1] = hm.get(list[i][0]).getName();
 		}
 
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < num; i++) {//Sorts array from lowest to highest rank (ex 1, 2, 3, etc.) using bubble sort
 			for (int n = 0; n <= num - 1; n++) {
-				//if (n < num && l[i+1][0] != null) {
 					if (Integer.parseInt(l[n][0]) > Integer.parseInt(l[n+1][0])) {
 						String temp = l[n][1];
 						String temp2 = l[n][0];
@@ -388,7 +387,6 @@ public class main {
 						l[n + 1][0] = temp2;
 						l[n + 1][1] = temp;
 					}
-				//}
 			}
 		}
 
